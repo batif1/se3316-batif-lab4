@@ -11,6 +11,8 @@ const { parse } = require('path');
 const uri = "mongodb+srv://basharatif2003:mkQqf26u9xvDfqn@cluster0.pykducv.mongodb.net/?retryWrites=true&w=majority";
 
 const mongoose = require('mongoose');
+
+
 mongoose.connect(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -45,8 +47,12 @@ const SuperHeroListDB = mongoose.model('superHeroListDB', superheroSchema);
 module.exports = SuperHeroListDB;
 
 app.use(express.json());
-
 app.use('/', express.static('../static'));
+
+
+const userRoutes = require('./users.js');
+app.use('/api/user', userRoutes);
+
 
 function getHeros() {
     return new Promise((resolve, reject) => {
