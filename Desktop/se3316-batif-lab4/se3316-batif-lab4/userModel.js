@@ -3,6 +3,11 @@ const bcrypt = require('bcrypt');
 
 
 const Schema = mongoose.Schema;
+console.log('userModel.js loaded')
+console.log('userModel.js loaded')
+console.log('userModel.js loaded')
+console.log('userModel.js loaded')
+
 
 const userSchema = new Schema({
     email: {
