@@ -1,9 +1,19 @@
 const express = require('express');
 const app = express();
 const port = 4000;
+
+const requireAuth = require('./middleware/requireAuth.js');
+
 const router = express.Router();
 const fs = require('fs');
 const { parse } = require('path');
+
+//INSERT PUBLIC ACCESS THINGS
+
+
+
+
+router.use(requireAuth);
 
 //MongoDB
 
@@ -118,7 +128,7 @@ app.use((req,res,next)=>{
 });
 
 //Serves static files
-app.use('/static', express.static('static'));
+//app.use('/static', express.static('static'));
 
 // Route to get a specific hero by id
 router.get('/:hero_id', async (req,res)=>{
