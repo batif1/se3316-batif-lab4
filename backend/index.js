@@ -490,7 +490,8 @@ app.delete('/api/lists/:listName', async (req, res) => {
             return res.status(404).send('List not found.');
         }
 
-        res.send('List deleted.');
+        res.status(200).json({ message: 'List deleted.' });
+
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error when deleting a list.');
