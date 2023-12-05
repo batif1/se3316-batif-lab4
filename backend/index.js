@@ -1,3 +1,4 @@
+const Fuse = require('fuse.js');
 const express = require('express');
 const app = express();
 const port = 4000;
@@ -13,7 +14,7 @@ const { parse } = require('path');
 
 
 
-router.use(requireAuth);
+//router.use(requireAuth);
 
 //MongoDB
 
@@ -48,7 +49,14 @@ const superheroSchema = new mongoose.Schema({
         minlength: 3,
         maxlength: 50
       },
-      items: [Number] // Array of numbers for each list
+      items: [Number], // Array of numbers for each list
+    listAuth:{
+        type: String, 
+        required:true,
+        //DATA VALIDATION
+        minlength: 3,
+        maxlength: 50
+    }
     });
 
 const SuperHeroListDB = mongoose.model('superHeroListDB', superheroSchema);
@@ -203,6 +211,7 @@ app.get('/api/publishers', async (req, res) => {
     }
 });
 
+/*
 //Seaching
 app.get('/api/search/:field/:query', async (req, res) => {
     try {
@@ -227,6 +236,47 @@ app.get('/api/search/:field/:query', async (req, res) => {
     }
 });
 
+
+*/
+app.get('/api/search/', async (req, res) => {
+    try {
+        const { name, id, race, publisher, power, n } = req.query;
+
+        const heroesData = await getHeros();
+        const powersData = await getPowers();
+
+        // Combine hero data with power data
+        const combinedData = heroesData.map(hero => ({
+            ...hero,
+            powers: powersData.find(p => p.hero_names === hero.name) || {}
+        }));
+
+        // Options for Fuse.js
+        const options = {
+            keys: ['name', 'id', 'Race', 'Publisher'], // Fields to search in
+            threshold: 0.3 // Adjust this for more or less strict matching
+        };
+
+        // Create a new Fuse instance with the combined data and options
+        const fuse = new Fuse(combinedData, options);
+
+        // Search using Fuse.js
+        const result = fuse.search(name || race || publisher || id);
+        const matchedHeroes = result.map(item => item.item).slice(0, n ? parseInt(n, 10) : undefined);
+
+        // Further filter for power if specified
+        const finalResults = power ? matchedHeroes.filter(hero => hero.powers[power] === "True") : matchedHeroes;
+
+        res.json(finalResults);
+
+    } catch (err) {
+        console.error('Error fetching heroes:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
 app.use('/api/heros', router)
 
 app.listen(port, () => {
@@ -245,7 +295,8 @@ app.post('/api/lists', async (req, res) => {
         }
 
         const newList = new SuperHeroListDB({
-            listName: listName
+            listName: listName,
+            listAuth: username
         });
 
         await newList.save();

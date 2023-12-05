@@ -129,3 +129,29 @@ form.signup, form.login {
   background: #fff;
   border-radius: 4px;
 }
+
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+
+.hero-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.hero-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hero-summary {
+  cursor: pointer;
+}
+
+.hero-details {
+  margin-top: 8px;
+}
