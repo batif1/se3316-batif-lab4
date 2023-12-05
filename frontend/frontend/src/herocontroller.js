@@ -12,6 +12,7 @@ export const getPowerList = () => {
         .catch(handleError);
 };
 
+
 // Searches for heroes based on different criteria
 export const searchHeroes = (queryString) => {
     console.log('Searching for heroes...');
@@ -20,6 +21,12 @@ export const searchHeroes = (queryString) => {
         .catch(handleError);
 };
 
+export const getListInfo = (listName) => {
+    console.log('Getting list info...');
+    return fetch(`/api/lists/information/${listName}`)
+        .then(handleResponse)
+        .catch(handleError);
+}
 /*
 export const searchPublisher = (field) => {
     console.log('Searching for heros with publisher...');
@@ -79,6 +86,12 @@ export const deleteList = (listName) => {
 };
 
 
+// Retrieves all lists
+export const viewAllLists = () => {
+    return fetch(`/api/getlists`)
+        .then(handleResponse)
+        .catch(handleError);
+};
 
 // Helper function to handle HTTP response
 const handleResponse = response => {

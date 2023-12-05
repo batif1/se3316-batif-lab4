@@ -6,12 +6,13 @@ import {
     createList,
     getList,
     deleteList,
-    editList
+    editList,
+    viewAllLists
 } from '../herocontroller';
 import '../index.css';
 import SearchResults from './SearchResults';
 import { useAuthContext } from '../hooks/useAuthContext'
-
+import ListsDisplay from './ListDisplay';
 
 const HeroDashboard = () => {
     const { user } = useAuthContext()
@@ -97,7 +98,12 @@ const HeroDashboard = () => {
                 case 'view':
                     response = await getList(listName);
                     setListViewData(response);
+                case 'view-all':
+                    response = await viewAllLists();
+                    console.log(response);
+                    setListViewData(response);
                     break;
+
                 case 'delete':
                     response = await deleteList(listName);
                     break;
@@ -111,7 +117,7 @@ const HeroDashboard = () => {
         }
     };
 
-    
+
     return (
         <div>
             <h1 id="big-title">Find your next favorite superhero...</h1>
@@ -152,6 +158,7 @@ const HeroDashboard = () => {
                 <option value="create">Create</option>
                 <option value="edit">Edit</option>
                 <option value="view">View</option>
+                <option value="view-all">View All</option>
                 <option value="delete">Delete</option>
             </select>
 
@@ -160,6 +167,7 @@ const HeroDashboard = () => {
             <ul id="superheroCards" className="card-list">
 
                 <SearchResults results={searchResults} />
+                <ListsDisplay lists={listViewData} />
 
             </ul>
 

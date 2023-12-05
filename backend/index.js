@@ -51,13 +51,23 @@ const superheroSchema = new mongoose.Schema({
       },
       items: [Number], // Array of numbers for each list
     listAuth:{
-        type: String, 
+        type: String,
         required:true,
         //DATA VALIDATION
         minlength: 3,
         maxlength: 50
+    },
+    dateCreated: {
+        type: Date,
+        default: Date.now
+    },
+    rate : {
+        type: Number
+    },
+    review : {
+        type: String
     }
-    });
+});
 
 const SuperHeroListDB = mongoose.model('superHeroListDB', superheroSchema);
 
@@ -308,6 +318,18 @@ app.post('/api/lists', async (req, res) => {
     }
   });
 
+  app.get('/api/getlists', async (req, res) => {
+    try {
+        const lists = await SuperHeroListDB.find({});
+        res.json(lists);
+    } catch (error) {
+        console.error('Error fetching lists:', error);
+        res.status(500).send('Server error when fetching lists.');
+    }
+});
+
+
+  
 //Updating superhero list (A LIST HAS TO BE CREATED FIRST)
 app.put('/api/lists/:listName', async (req, res) => {
     const { listName } = req.params;
