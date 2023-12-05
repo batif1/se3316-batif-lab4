@@ -89,7 +89,10 @@ const HeroDashboard = () => {
                     response = await createList(listName, username);
                     break;
                 case 'edit':
-                    response = await editList(listName, listContent);
+                    console.log(listContent)
+                    const actualArray = JSON.parse(listContent);
+                    response = await editList(listName, actualArray);
+
                     break;
                 case 'view':
                     response = await getList(listName);
