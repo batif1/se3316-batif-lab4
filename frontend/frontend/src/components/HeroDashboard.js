@@ -10,9 +10,12 @@ import {
 } from '../herocontroller';
 import '../index.css';
 import SearchResults from './SearchResults';
+import { useAuthContext } from '../hooks/useAuthContext'
 
 
 const HeroDashboard = () => {
+    const { user } = useAuthContext()
+
     const [heroes, setHeroes] = useState([]);
     const [powers, setPowers] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
@@ -66,7 +69,11 @@ const HeroDashboard = () => {
 
 
 
-    const handleListAction = async () => {
+    const handleListAction = async (e) => {
+        e.preventDefault();
+        console.log('in HERE')
+        const username = user.email.split('@')[0];
+        console.log(username)
         const listName = document.getElementById('list-input').value.trim().toLowerCase();
         const listContent = document.getElementById('list-content').value.trim();
         const selectedFunction = document.getElementById('list-category').value.trim();
@@ -79,7 +86,7 @@ const HeroDashboard = () => {
             let response;
             switch (selectedFunction) {
                 case 'create':
-                    response = await createList(listName, listContent);
+                    response = await createList(listName, username);
                     break;
                 case 'edit':
                     response = await editList(listName, listContent);
@@ -101,6 +108,7 @@ const HeroDashboard = () => {
         }
     };
 
+    
     return (
         <div>
             <h1 id="big-title">Find your next favorite superhero...</h1>
@@ -134,10 +142,16 @@ const HeroDashboard = () => {
 
 
             <h2>Like a few? Don't forget about them! Create a new list:</h2>
+
             <input className="field" type="text" id="list-input" placeholder="List's Name" />
             <input className="field" type="text" id="list-content" placeholder="Insert Info eg [1,2,3]" />
             <select className="list-selector" id="list-category">
+                <option value="create">Create</option>
+                <option value="edit">Edit</option>
+                <option value="view">View</option>
+                <option value="delete">Delete</option>
             </select>
+
             <button className="button" onClick={handleListAction}>Save</button>
             <p>{requestMessage}</p>
             <ul id="superheroCards" className="card-list">

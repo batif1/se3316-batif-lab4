@@ -1,6 +1,3 @@
-import { useAuthContext } from './hooks/useAuthContext';
-
-const { user } = useAuthContext();
 // Fetches the list of heroes
 export const getHeroList = () => {
     return fetch('/api/heros/')
@@ -33,10 +30,12 @@ export const searchPublisher = (field) => {
 
 */
 // Creates a new list
-export const createList = (listName) => {
+export const createList = (listName,usern) => {
+    console.log('Creating list...');
+    console.log(usern);
     const payload = {
         listName: listName,
-        username: user.username
+        username: usern
     };
     return fetch('http://localhost:3000/api/lists', {
         method: 'POST',

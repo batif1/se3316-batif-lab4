@@ -286,6 +286,7 @@ app.listen(port, () => {
 
 app.post('/api/lists', async (req, res) => {
     const { listName } = req.body; //listName is an attribute of the JSON
+    const {username} = req.body;
 
     //Error Handling if the list already exists
     try{
