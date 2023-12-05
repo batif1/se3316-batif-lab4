@@ -36,14 +36,26 @@ export const searchPublisher = (field) => {
 };
 
 */
+
+
 // Creates a new list
-export const createList = (listName,usern) => {
+export const createList = (listName, username, listContent, listDescription, listVisibility) => {
     console.log('Creating list...');
-    console.log(usern);
+    console.log('listContent:', listContent);
+    console.log('listDescription:', listDescription);
+
     const payload = {
         listName: listName,
-        username: usern
+        items: listContent,
+        username: username,
+        visibility: listVisibility,
+        rate: 0,
+        reviews: [],
+        description: listDescription,
     };
+
+    console.log(payload);
+
     return fetch('http://localhost:3000/api/lists', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -52,6 +64,7 @@ export const createList = (listName,usern) => {
     .then(handleResponse)
     .catch(handleError);
 };
+
 
 // Edits an existing list
 export const editList = (listName, superheroIds) => {

@@ -337,10 +337,10 @@ app.post('/api/lists', async (req, res) => {
         });
 
         await newList.save();
-        res.status(201).send('New superhero list created.');
+        res.status(201).json({ message: 'New superhero list created.' });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error when creating a new list.');
+        res.status(500).json({ message: 'Server error when creating a new list.' });
     }
 });
 

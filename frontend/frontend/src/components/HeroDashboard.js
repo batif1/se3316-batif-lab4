@@ -66,18 +66,19 @@ const HeroDashboard = () => {
             console.error('Search failed:', error);
         }
     };
-    
-
 
 
     const handleListAction = async (e) => {
         e.preventDefault();
         console.log('in HERE')
         const username = user.email.split('@')[0];
-        console.log(username)
         const listName = document.getElementById('list-input').value.trim().toLowerCase();
         const listContent = document.getElementById('list-content').value.trim();
         const selectedFunction = document.getElementById('list-category').value.trim();
+        const listDescription = document.getElementById('list-description').value.trim();
+        const listVisibility = document.getElementById('list-visibility').value.trim();
+       
+        const actualArray = JSON.parse(listContent);
 
         if (listName === '') {
             return;
@@ -87,17 +88,19 @@ const HeroDashboard = () => {
             let response;
             switch (selectedFunction) {
                 case 'create':
-                    response = await createList(listName, username);
+                    //(listName, username,listContent, listDescription, listVisibility)
+                    response = await createList(listName, username,actualArray, listDescription, listVisibility);
+
                     break;
                 case 'edit':
                     console.log(listContent)
-                    const actualArray = JSON.parse(listContent);
                     response = await editList(listName, actualArray);
 
                     break;
                 case 'view':
                     response = await getList(listName);
                     setListViewData(response);
+                    break;
                 case 'view-all':
                     response = await viewAllLists();
                     console.log(response);
@@ -154,7 +157,14 @@ const HeroDashboard = () => {
 
             <input className="field" type="text" id="list-input" placeholder="List's Name" />
             <input className="field" type="text" id="list-content" placeholder="Insert Info eg [1,2,3]" />
-            <select className="list-selector" id="list-category">
+            <input className="field" type="text" id="list-description" placeholder="Insert Description" />
+
+            <select className="category-selector" id="list-visibility">
+                <option value="private">private</option>
+                <option value="public">public</option>
+            </select>
+
+            <select className="category-selector" id="list-category">
                 <option value="create">Create</option>
                 <option value="edit">Edit</option>
                 <option value="view">View</option>
