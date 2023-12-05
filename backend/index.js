@@ -8,6 +8,8 @@ const requireAuth = require('./middleware/requireAuth.js');
 const router = express.Router();
 const fs = require('fs');
 const { parse } = require('path');
+const bodyParser = require('body-parser'); // Import body-parser
+app.use(bodyParser.json()); // Use body-parser middleware
 
 //INSERT PUBLIC ACCESS THINGS
 
@@ -40,20 +42,22 @@ db.once('open', () => {
 });
 
 
+
 const superheroSchema = new mongoose.Schema({
     listName: {
         type: String,
         required: true,
-        unique: true, // Ensures that each list name is unique
-        //DATA VALIDATION
+        unique: true,
         minlength: 3,
         maxlength: 50
-      },
-      items: [Number], // Array of numbers for each list
-    listAuth:{
+    },
+    items: {
+        type: [Number],
+        required: true // Make the 'items' array required
+    },
+    listAuth: {
         type: String,
-        required:true,
-        //DATA VALIDATION
+        required: true,
         minlength: 3,
         maxlength: 50
     },
@@ -61,13 +65,28 @@ const superheroSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    rate : {
+    lastModified: {
+        type: Date,
+        default: Date.now
+    },
+    visibility: {
+        type: String,
+        default: 'private'
+    },
+    rate: {
         type: Number
     },
-    review : {
+    reviews: [{
+        user: String,
+        comment: String,
+        rating: Number
+    }],
+    description: {
         type: String
     }
 });
+
+module.exports = mongoose.model('Superhero', superheroSchema);
 
 const SuperHeroListDB = mongoose.model('superHeroListDB', superheroSchema);
 
@@ -292,8 +311,43 @@ app.use('/api/heros', router)
 app.listen(port, () => {
     console.log(`Listening on port ' ${port})`);
 });
+app.post('/api/lists', async (req, res) => {
+    const { listName, items, username, visibility, reviews, description } = req.body;
+    let { rate } = req.body;
+
+    try {
+        const listExists = await SuperHeroListDB.findOne({ listName: listName });
+
+        if (listExists) {
+            return res.status(400).send('List name already exists.');
+        }
+
+        if (!rate) {
+            rate = 0; // Set default rating to 0 if not provided
+        }
+
+        const newList = new SuperHeroListDB({
+            listName: listName,
+            items: items || [],
+            listAuth: username,
+            visibility: visibility || 'private',
+            rate: rate,
+            reviews: reviews || [],
+            description: description || ''
+        });
+
+        await newList.save();
+        res.status(201).send('New superhero list created.');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error when creating a new list.');
+    }
+});
 
 
+
+
+/*
 app.post('/api/lists', async (req, res) => {
     const { listName } = req.body; //listName is an attribute of the JSON
     const {username} = req.body;
@@ -317,7 +371,7 @@ app.post('/api/lists', async (req, res) => {
         res.status(500).send('Server error when creating a new list.');
     }
   });
-
+*/
   app.get('/api/getlists', async (req, res) => {
     try {
         const lists = await SuperHeroListDB.find({});
@@ -329,8 +383,50 @@ app.post('/api/lists', async (req, res) => {
 });
 
 
-  
-//Updating superhero list (A LIST HAS TO BE CREATED FIRST)
+
+app.put('/api/lists/:listName', async (req, res) => {
+    const { listName } = req.params;
+    const { superheroIds, reviews } = req.body; // Include reviews in the request body
+
+    try {
+        const list = await SuperHeroListDB.findOne({ listName: listName });
+
+        if (!list) {
+            return res.status(404).send('List not found.');
+        }
+
+        list.items = superheroIds;
+
+        // Update the lastModified date when the list is modified
+        list.lastModified = new Date();
+
+        // Update or add reviews with ratings
+        if (reviews && reviews.length > 0) {
+            reviews.forEach((review) => {
+                if (review.rating) {
+                    list.reviews.push({
+                        user: review.user,
+                        comment: review.comment,
+                        rating: review.rating
+                    });
+                }
+            });
+
+            // Calculate the average rating
+            const totalRatings = list.reviews.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = totalRatings / list.reviews.length;
+            list.rate = averageRating;
+        }
+
+        await list.save();
+        res.send('List updated with DB.');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error when updating a list.');
+    }
+});
+
+/*
 app.put('/api/lists/:listName', async (req, res) => {
     const { listName } = req.params;
     const { superheroIds } = req.body;//"superheroIds" needs to be in the body
@@ -350,7 +446,7 @@ app.put('/api/lists/:listName', async (req, res) => {
         res.status(500).send('Server error when updating a list.');
     }
   });
-
+*/
 //GET Request for the list
 
 app.get('/api/lists/:listName', async (req, res) => {
@@ -359,16 +455,28 @@ app.get('/api/lists/:listName', async (req, res) => {
     try {
         const list = await SuperHeroListDB.findOne({ listName: listName });
 
-        if (!list){
+        if (!list) {
             return res.status(404).send('List not found.');
         }
 
-        res.json(list.items)
-    }catch(error){
+        const response = {
+            listName: list.listName,
+            listAuth: list.listAuth,
+            dateCreated: list.dateCreated,
+            lastModified: list.lastModified,
+            visibility: list.visibility,
+            rate: list.rate,
+            reviews: list.reviews,
+            description: list.description,
+            items: list.items
+        };
+
+        res.json(response);
+    } catch (error) {
         console.error(error);
         res.status(500).send('Server error when getting a list.');
     }
-  });
+});
 
 
 //DELETE Request for the list
@@ -377,54 +485,74 @@ app.delete('/api/lists/:listName', async (req, res) => {
 
     try {
         const result = await SuperHeroListDB.deleteOne({ listName: listName });
-        if (result.deletedCount === 0){
+
+        if (result.deletedCount === 0) {
             return res.status(404).send('List not found.');
         }
+
         res.send('List deleted.');
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error when getting a list.');
+        res.status(500).send('Server error when deleting a list.');
     }
-  });
+});
 
-  app.get('/api/lists/information/:listName', async (req, res) => {
+
+app.get('/api/lists/information/:listName', async (req, res) => {
     const { listName } = req.params;
 
     try {
-      const heros = await getHeros();
-      const powers = await getPowers();
-      const results = [];
+        const heros = await getHeros();
+        const powers = await getPowers();
+        const results = [];
 
-      const list = await SuperHeroListDB.findOne({ listName: listName });
+        const list = await SuperHeroListDB.findOne({ listName: listName });
 
-      if (!list){
-        return res.status(404).send('List not found.');
-    }
-
-      for (const each of list.items) {
-        const id = parseInt(each, 10);
-        console.log("Here is the ID:")
-        console.log(id);
-        const hero = heros.find(h => h.id === id);
-        if (hero) {
-          const power = powers.find(p => p.hero_names.includes(hero.name));
-          if (power) {
-            results.push({
-              hero: hero,
-              power: power
-            });
-          }
+        if (!list) {
+            return res.status(404).send('List not found.');
         }
-      }
 
+        // Include the new format for list details
+        const listDetails = {
+            listName: list.listName,
+            listAuth: list.listAuth,
+            dateCreated: list.dateCreated,
+            lastModified: list.lastModified,
+            visibility: list.visibility,
+            rate: list.rate,
+            reviews: list.reviews,
+            description: list.description,
+            items: list.items
+        };
 
-      if (results.length > 0) {
-        res.json(results); // Send the combined objects as JSON
-      } else {
-        res.status(404).send('Hero or Power not found');
-      }
+        for (const each of listDetails.items) {
+            const id = parseInt(each, 10);
+            console.log("Here is the ID:")
+            console.log(id);
+            const hero = heros.find(h => h.id === id);
+            if (hero) {
+                const power = powers.find(p => p.hero_names.includes(hero.name));
+                if (power) {
+                    results.push({
+                        hero: hero,
+                        power: power
+                    });
+                }
+            }
+        }
+
+        if (results.length > 0) {
+            // Include the list details along with the superhero information
+            const response = {
+                listDetails: listDetails,
+                superheroInformation: results
+            };
+            res.json(response);
+        } else {
+            res.status(404).send('Hero or Power not found');
+        }
     } catch (error) {
-      console.error(error);
-      res.status(500).send('Server error');
+        console.error(error);
+        res.status(500).send('Server error');
     }
-  });
+});

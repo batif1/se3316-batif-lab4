@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getListInfo } from '../herocontroller';
 
 const ListsDisplay = ({ lists }) => {
+    console.log(lists);
     const [expandedListId, setExpandedListId] = useState(null);
     const [listDetails, setListDetails] = useState({});
     const [listRatings, setListRatings] = useState({});
@@ -18,7 +19,9 @@ const ListsDisplay = ({ lists }) => {
     const toggleExpandList = async (listId) => {
         setExpandedListId(expandedListId === listId ? null : listId);
         const list = lists.find(l => l._id === listId);
-        if (listId && !listDetails[listId] && list) {
+        
+        // Check if listDetails[listId] is already populated, if not, fetch the details
+        if (listId && (!listDetails[listId] || !listDetails[listId].listDetails) && list) {
             const details = await getListInfo(list.listName);
             setListDetails({ ...listDetails, [listId]: details });
         }
@@ -36,13 +39,34 @@ const ListsDisplay = ({ lists }) => {
                         </h3>
                         <p>Created by: {list.listAuth}</p>
                     </div>
-                    {expandedListId === list._id && (
+                    {expandedListId === list._id && listDetails[list._id] && listDetails[list._id].listDetails && (
                         <div className="list-details">
-                            {listDetails[list._id] && listDetails[list._id].map((detail, index) => (
+                            <h4>List Details:</h4>
+                            <p>List Name: {listDetails[list._id].listDetails.listName}</p>
+                            <p>Author: {listDetails[list._id].listDetails.listAuth}</p>
+                            <p>Date Created: {listDetails[list._id].listDetails.dateCreated}</p>
+                            <p>Last Modified: {listDetails[list._id].listDetails.lastModified}</p>
+                            <p>Visibility: {listDetails[list._id].listDetails.visibility}</p>
+                            <p>Rating: {listDetails[list._id].listDetails.rate} / 5</p>
+
+                            <h4>Reviews:</h4>
+                            {listDetails[list._id].listDetails.reviews.map((review, index) => (
                                 <div key={index}>
-                                    <p>Name: {detail.hero.name}</p>
-                                    <p>Publisher: {detail.hero.Publisher}</p>
-                                    {/* Add more details as needed */}
+                                    <p>User: {review.user}</p>
+                                    <p>Comment: {review.comment}</p>
+                                    <p>Rating: {review.rating} / 5</p>
+                                </div>
+                            ))}
+
+                            <h4>Superheroes:</h4>
+                            {listDetails[list._id].superheroInformation.map((heroInfo, index) => (
+                                <div key={index}>
+                                    <h5>Hero {index + 1}:</h5>
+                                    <p>Name: {heroInfo.hero.name}</p>
+                                    <p>Gender: {heroInfo.hero.Gender}</p>
+                                    <p>Eye color: {heroInfo.hero["Eye color"]}</p>
+                                    <p>Race: {heroInfo.hero.Race}</p>
+                                    {/* Add more properties here as needed */}
                                 </div>
                             ))}
                         </div>
