@@ -311,6 +311,8 @@ app.use('/api/heros', router)
 app.listen(port, () => {
     console.log(`Listening on port ' ${port})`);
 });
+
+//Working create
 app.post('/api/lists', async (req, res) => {
     const { listName, items, username, visibility, reviews, description } = req.body;
     let { rate } = req.body;
@@ -345,33 +347,7 @@ app.post('/api/lists', async (req, res) => {
 });
 
 
-
-
-/*
-app.post('/api/lists', async (req, res) => {
-    const { listName } = req.body; //listName is an attribute of the JSON
-    const {username} = req.body;
-
-    //Error Handling if the list already exists
-    try{
-        const listExists = await SuperHeroListDB.findOne({ listName: listName});
-        if (listExists){
-            return res.status(400).send('List name already exists.');
-        }
-
-        const newList = new SuperHeroListDB({
-            listName: listName,
-            listAuth: username
-        });
-
-        await newList.save();
-        res.status(201).send('New superhero list created.');
-    }catch (error){
-        console.error(error);
-        res.status(500).send('Server error when creating a new list.');
-    }
-  });
-*/
+//Working get
   app.get('/api/getlists', async (req, res) => {
     try {
         const lists = await SuperHeroListDB.find({});
@@ -383,10 +359,10 @@ app.post('/api/lists', async (req, res) => {
 });
 
 
-
+//Update
 app.put('/api/lists/:listName', async (req, res) => {
     const { listName } = req.params;
-    const { superheroIds, reviews } = req.body; // Include reviews in the request body
+    const { items, username, visibility, rate, reviews, description } = req.body;
 
     try {
         const list = await SuperHeroListDB.findOne({ listName: listName });
@@ -395,7 +371,11 @@ app.put('/api/lists/:listName', async (req, res) => {
             return res.status(404).send('List not found.');
         }
 
-        list.items = superheroIds;
+        list.items = items || [];
+        list.listAuth = username || list.listAuth;
+        list.visibility = visibility || 'private';
+        list.rate = rate || 0;
+        list.description = description || list.description;
 
         // Update the lastModified date when the list is modified
         list.lastModified = new Date();
@@ -419,12 +399,14 @@ app.put('/api/lists/:listName', async (req, res) => {
         }
 
         await list.save();
-        res.send('List updated with DB.');
+        res.status(200).json({ message: 'List edited.' });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error when updating a list.');
     }
 });
+
+
 
 /*
 app.put('/api/lists/:listName', async (req, res) => {

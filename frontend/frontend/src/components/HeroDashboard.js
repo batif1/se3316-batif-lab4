@@ -77,7 +77,8 @@ const HeroDashboard = () => {
         const selectedFunction = document.getElementById('list-category').value.trim();
         const listDescription = document.getElementById('list-description').value.trim();
         const listVisibility = document.getElementById('list-visibility').value.trim();
-       
+        const rate = ''
+        const reviews = []
         const actualArray = JSON.parse(listContent);
 
         if (listName === '') {
@@ -94,7 +95,10 @@ const HeroDashboard = () => {
                     break;
                 case 'edit':
                     console.log(listContent)
-                    response = await editList(listName, actualArray);
+                    
+                    //(listName, username, listContent, listVisibility, rate, reviews, listDescription)
+                    console.log(listVisibility)
+                    response = await editList (listName, username,actualArray,listVisibility,rate, reviews, listDescription);
 
                     break;
                 case 'view':

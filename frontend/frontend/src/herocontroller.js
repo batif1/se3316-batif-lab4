@@ -40,9 +40,6 @@ export const searchPublisher = (field) => {
 
 // Creates a new list
 export const createList = (listName, username, listContent, listDescription, listVisibility) => {
-    console.log('Creating list...');
-    console.log('listContent:', listContent);
-    console.log('listDescription:', listDescription);
 
     const payload = {
         listName: listName,
@@ -53,8 +50,6 @@ export const createList = (listName, username, listContent, listDescription, lis
         reviews: [],
         description: listDescription,
     };
-
-    console.log(payload);
 
     return fetch('http://localhost:3000/api/lists', {
         method: 'POST',
@@ -67,10 +62,17 @@ export const createList = (listName, username, listContent, listDescription, lis
 
 
 // Edits an existing list
-export const editList = (listName, superheroIds) => {
+// Edits an existing list
+export const editList = (listName, username, listContent, listVisibility, rate, reviews, listDescription) => {
     const payload = {
-        superheroIds: superheroIds // Send superheroIds as part of the payload
+        items: listContent,
+        username: username,
+        visibility: listVisibility,
+        rate: rate,
+        reviews: reviews,
+        description: listDescription
     };
+    console.log(payload);
     return fetch(`http://localhost:3000/api/lists/${listName}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
