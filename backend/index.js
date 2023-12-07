@@ -347,7 +347,7 @@ app.post('/api/lists', async (req, res) => {
 });
 
 
-//Working get
+//Working get OLD
   app.get('/api/getlists', async (req, res) => {
     try {
         const lists = await SuperHeroListDB.find({});
@@ -429,6 +429,51 @@ app.put('/api/lists/:listName', async (req, res) => {
     }
   });
 */
+
+//Adding a review
+
+app.post('/api/lists/:listName/reviews', async (req, res) => {
+    const { listName } = req.params;
+    const { user, comment, rating } = req.body;
+
+    try {
+        const list = await SuperHeroListDB.findOne({ listName });
+
+        if (!list) {
+            return res.status(404).send('List not found.');
+        }
+
+        if (!user || !comment || !rating) {
+            return res.status(400).send('Invalid review data.');
+        }
+
+        // Add the new review to the list's reviews array
+        list.reviews.push({
+            user,
+            comment,
+            rating,
+        });
+
+        // Calculate the average rating
+        const totalRatings = list.reviews.reduce((sum, review) => sum + review.rating, 0);
+        const averageRating = totalRatings / list.reviews.length;
+        list.rate = averageRating;
+
+        // Update the lastModified date when the list is modified
+        list.lastModified = new Date();
+
+        await list.save();
+        res.status(201).json({ message: 'Review added to the list.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error when adding a review.');
+    }
+});
+
+
+
+
+
 //GET Request for the list
 
 app.get('/api/lists/:listName', async (req, res) => {

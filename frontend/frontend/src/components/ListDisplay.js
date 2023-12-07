@@ -6,14 +6,7 @@ const ListsDisplay = ({ lists }) => {
     const [listDetails, setListDetails] = useState({});
     const [listRatings, setListRatings] = useState({});
 
-    useEffect(() => {
-        // Generate a random rating for each list when the component mounts
-        const ratings = lists.reduce((acc, list) => {
-            acc[list._id] = (Math.random() * 5).toFixed(1); // Random rating out of 5, rounded to one decimal place
-            return acc;
-        }, {});
-        setListRatings(ratings);
-    }, [lists]);
+
 
     // Sort lists by last modified date
     const sortedLists = [...lists].sort((a, b) => {
@@ -41,7 +34,7 @@ const ListsDisplay = ({ lists }) => {
                     <div className="list-summary" onClick={() => toggleExpandList(list._id)}>
                         <h3>
                             {list.listName} - Heroes: {list.items.length}
-                            <span> Rating: {listRatings[list._id]} / 5</span>
+                            <span> Rating: {list.rate} / 5</span>
                         </h3>
                         <p>Created by: {list.listAuth}</p>
                     </div>

@@ -82,6 +82,24 @@ export const editList = (listName, username, listContent, listVisibility, rate, 
     .catch(handleError);
 };
 
+export const addReviewToList = (listName, user, comment, rating) => {
+    const payload = {
+        user,
+        comment,
+        rating,
+    };
+
+    return fetch(`http://localhost:3000/api/lists/${listName}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    })
+    .then(handleResponse)
+    .catch(handleError);
+};
+
+
+
 
 // Retrieves a specific list
 export const getList = (listName) => {

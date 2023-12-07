@@ -7,12 +7,14 @@ import {
     getList,
     deleteList,
     editList,
-    viewAllLists
+    viewAllLists,
+    addReviewToList
 } from '../herocontroller';
 import '../index.css';
 import SearchResults from './SearchResults';
 import { useAuthContext } from '../hooks/useAuthContext'
 import ListsDisplay from './ListDisplay';
+
 
 const HeroDashboard = () => {
     const { user } = useAuthContext()
@@ -143,6 +145,27 @@ const HeroDashboard = () => {
         setListToDelete(null);
     };
 
+    const handleReview = async (e) => {
+        e.preventDefault();
+        const username = user.email.split('@')[0];
+        const listName = document.getElementById('list-review-name').value.trim().toLowerCase();
+        const listReview = document.getElementById('list-review').value.trim();
+        const listRate = document.getElementById('list-rate').value.trim();
+
+        if (listName === '') {
+            return;
+        }
+
+        try {
+            const response = await addReviewToList(listName, username, listReview, listRate);
+            setRequestMessage(response ? 'Review added successfully' : 'Failed to add review');
+        }
+        catch (error) {
+            console.error('Review failed:', error);
+            setRequestMessage('An error occurred');
+        }
+    };
+
 
 
     return (
@@ -219,6 +242,7 @@ const HeroDashboard = () => {
             <input className="field" type="text" id="list-review-name" placeholder="List's Name to Review" />
             <input className="field" type="number" id="list-rate" placeholder="Rate (max 5, min 0)" />
             <input className="field" type="text" id="list-review" placeholder="Insert Review" />
+            <button className="button" onClick={handleReview}>Save</button>
 
 
         </div>
