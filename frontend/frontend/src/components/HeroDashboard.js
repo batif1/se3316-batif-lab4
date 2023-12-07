@@ -33,6 +33,8 @@ const HeroDashboard = () => {
     const [searchRace, setSearchRace] = useState('');
     const [searchPublisher, setSearchPublisher] = useState('');
 
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [listToDelete, setListToDelete] = useState(null);
 
     useEffect(() => {
         loadData();
@@ -50,16 +52,16 @@ const HeroDashboard = () => {
     };
     const handleSearch = async (e) => {
         e.preventDefault();
-    
+
         try {
             let queryParams = new URLSearchParams();
-    
+
             if (searchName) queryParams.append('name', searchName);
             if (searchId) queryParams.append('id', searchId);
             if (searchRace) queryParams.append('race', searchRace);
             if (searchPublisher) queryParams.append('publisher', searchPublisher);
             if (searchPower) queryParams.append('power', searchPower);
-    
+
             const results = await searchHeroes(queryParams.toString());
             setSearchResults(results);
         } catch (error) {
@@ -90,15 +92,15 @@ const HeroDashboard = () => {
             switch (selectedFunction) {
                 case 'create':
                     //(listName, username,listContent, listDescription, listVisibility)
-                    response = await createList(listName, username,actualArray, listDescription, listVisibility);
+                    response = await createList(listName, username, actualArray, listDescription, listVisibility);
 
                     break;
                 case 'edit':
                     console.log(listContent)
-                    
+
                     //(listName, username, listContent, listVisibility, rate, reviews, listDescription)
                     console.log(listVisibility)
-                    response = await editList (listName, username,actualArray,listVisibility,rate, reviews, listDescription);
+                    response = await editList(listName, username, actualArray, listVisibility, rate, reviews, listDescription);
 
                     break;
                 case 'view':
@@ -112,7 +114,9 @@ const HeroDashboard = () => {
                     break;
 
                 case 'delete':
-                    response = await deleteList(listName);
+                    setShowDeleteConfirmation(true);
+                    setListToDelete(listName);
+                    //response = await deleteList(listName);
                     break;
                 default:
                     break;
@@ -123,6 +127,22 @@ const HeroDashboard = () => {
             setRequestMessage('An error occurred');
         }
     };
+    const confirmDelete = async () => {
+        if (listToDelete) {
+            try {
+                const response = await deleteList(listToDelete);
+                setRequestMessage(response ? 'List deleted successfully' : 'Failed to delete list');
+            } catch (error) {
+                console.error('List deletion failed:', error);
+                setRequestMessage('An error occurred while deleting the list');
+            }
+        }
+
+        // Hide the delete confirmation dialog
+        setShowDeleteConfirmation(false);
+        setListToDelete(null);
+    };
+
 
 
     return (
@@ -184,6 +204,22 @@ const HeroDashboard = () => {
                 <ListsDisplay lists={listViewData} />
 
             </ul>
+
+            {showDeleteConfirmation && (
+                <div className="delete-confirmation-modal">
+                    <p>Are you sure you want to delete the list "{listToDelete}"?</p>
+                    <div className="modal-buttons">
+                        <button className="button" onClick={confirmDelete}>Yes</button>
+                        <button className="button" onClick={() => setShowDeleteConfirmation(false)}>No</button>
+                    </div>
+                </div>
+            )}
+
+            <h2>Leave a review or a rating? Share your thoughts...</h2>
+            <input className="field" type="text" id="list-review-name" placeholder="List's Name to Review" />
+            <input className="field" type="number" id="list-rate" placeholder="Rate (max 5, min 0)" />
+            <input className="field" type="text" id="list-review" placeholder="Insert Review" />
+
 
         </div>
     );
