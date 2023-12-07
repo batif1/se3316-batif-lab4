@@ -22,6 +22,14 @@ const userSchema = new Schema({
         type: String,
         required: true,
         //DATA VALIDATION
+    },
+    admin : {
+        type: Boolean
+    },
+    status: {
+        type: String,
+        enum: ['active', 'disabled'],
+        default: 'active'
     }
 
 })
@@ -49,6 +57,9 @@ userSchema.statics.login = async function (email, password) {
     if (!user) {
         throw Error('email does not exist')
     }
+    if (user.status === 'disabled') {
+        throw Error('Account disabled, contact admin@user.com for support.')
+    }
     const match = await bcrypt.compare(password, user.password)
     if (!match) {
         throw Error('incorrect password')
@@ -57,5 +68,33 @@ userSchema.statics.login = async function (email, password) {
         return user
     }
 }
+
+userSchema.statics.disableUser = async function (email) {
+    const user = await this.findOne({ email });
+    if (!user) {
+        throw Error('Email does not exist');
+    }
+    if (user.status === 'disabled') {
+        throw Error('Account is already disabled.');
+    }
+    user.status = 'disabled'; // Set the user's status to 'disabled'
+    await user.save(); // Save the updated user document
+    return user;
+};
+
+
+userSchema.statics.enableUser = async function (email) {
+    const user = await this.findOne({ email });
+    if (!user) {
+        throw Error('Email does not exist');
+    }
+    if (user.status === 'active') {
+        throw Error('Account is already enabled.');
+    }
+
+    user.status = 'active'; // Set the user's status to 'active'
+    await user.save(); // Save the updated user document
+    return user;
+};
 
 module.exports = mongoose.model('User', userSchema);

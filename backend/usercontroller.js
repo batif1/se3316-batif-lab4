@@ -17,6 +17,25 @@ const loginUser = async (req, res) => {
     }
 }
 
+const adminDisableUser = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.disableUser(email);
+        res.status(200).json({ email })
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+}
+
+const adminEnableUser = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.enableUser(email);
+        res.status(200).json({ email })
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+}
 
 
 //sign up user
@@ -34,4 +53,4 @@ const signupUser = async (req,res) => {
 }
 
 
-module.exports = {signupUser, loginUser}
+module.exports = {signupUser, loginUser,adminDisableUser,adminEnableUser}

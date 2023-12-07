@@ -16,7 +16,6 @@ app.use(bodyParser.json()); // Use body-parser middleware
 
 
 
-//router.use(requireAuth);
 
 //MongoDB
 
@@ -311,6 +310,9 @@ app.use('/api/heros', router)
 app.listen(port, () => {
     console.log(`Listening on port ' ${port})`);
 });
+
+
+router.use(requireAuth);
 
 //Working create
 app.post('/api/lists', async (req, res) => {

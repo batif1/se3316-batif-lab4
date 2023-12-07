@@ -75,6 +75,7 @@ const HeroDashboard = () => {
     const handleListAction = async (e) => {
         e.preventDefault();
         console.log('in HERE')
+
         const username = user.email.split('@')[0];
         const listName = document.getElementById('list-input').value.trim().toLowerCase();
         const listContent = document.getElementById('list-content').value.trim();
@@ -145,6 +146,18 @@ const HeroDashboard = () => {
         setListToDelete(null);
     };
 
+    const handleListView = async (e) => {
+        e.preventDefault();
+    
+        try {
+            const response = await viewAllLists();
+            setListViewData(response);
+        } catch (error) {
+            console.error('View lists failed:', error);
+        }
+    };
+    
+
     const handleReview = async (e) => {
         e.preventDefault();
         const username = user.email.split('@')[0];
@@ -198,9 +211,10 @@ const HeroDashboard = () => {
 
 
             <button className="button" onClick={handleSearch}>Search</button>
+            <button className="button" onClick={handleListView}>View Public Lists</button>
 
 
-            <h2>Like a few? Don't forget about them! Create a new list:</h2>
+            <h2>Like a few? Don't forget about them! Create a new list (sign-in required):</h2>
 
             <input className="field" type="text" id="list-input" placeholder="List's Name" />
             <input className="field" type="text" id="list-content" placeholder="Insert Info eg [1,2,3]" />
