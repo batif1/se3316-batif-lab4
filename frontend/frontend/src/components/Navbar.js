@@ -29,6 +29,11 @@ const Navbar = () => {
               <Link to="/signup">Signup</Link>
             </div>
           )}
+          {user.admin === true && (
+            <div>
+              <Link to="/admin">You are an Admin.</Link>
+            </div>
+            )}
         </nav>
       </div>
     </header>
