@@ -11,6 +11,7 @@ const Navbar = () => {
 
   const handleClick = () => {
     logout()
+    // window.location.reload()
   }
 
   return (
