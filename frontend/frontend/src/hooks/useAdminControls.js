@@ -103,20 +103,20 @@ export const useUserManagement = () => {
     console.log(email);
     setIsLoading(true);
     setError(null);
-  
+
     try {
       const response = await fetch(`/api/user/admin/status?email=${(email)}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
-  
+
       if (!response.ok) {
         // Handle non-ok response here, e.g., by setting an error state
         setIsLoading(false);
         setError('Failed to fetch admin status');
         return null; // Return null or handle the error as appropriate
       }
-  
+
       const json = await response.json();
       console.log(json);
       setIsLoading(false);
@@ -129,6 +129,60 @@ export const useUserManagement = () => {
       return null; // Return null or handle the error as appropriate
     }
   };
-  
-  return { enableUser, disableUser,adminStatus,revokeAdmin,grantAdmin, isLoading, error };
+
+
+
+  const updateDMCA = async (newDMCA) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/privacy/DMCA', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ DMCA: newDMCA }),
+      });
+
+      if (!response.ok) {
+        const json = await response.json();
+        setError(json.error);
+      } else {
+        // DMCA content updated successfully
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setError('An error occurred while updating DMCA content.');
+    }
+  };
+
+  const getDMCA = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/privacy/DMCA', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        // Handle non-ok response here, e.g., by setting an error state
+        setIsLoading(false);
+        setError('Failed to fetch DMCA content');
+        return null; // Return null or handle the error as appropriate
+      }
+
+      const content = await response.json();
+      setIsLoading(false);
+      return content;
+    } catch (error) {
+      // Handle any unexpected errors here
+      console.error(error);
+      setIsLoading(false);
+      setError('An error occurred while fetching DMCA content');
+      return null; // Return null or handle the error as appropriate
+    }
+  };
+
+  return { enableUser, disableUser,adminStatus,revokeAdmin,grantAdmin,getDMCA,updateDMCA, isLoading, error };
 };
