@@ -97,4 +97,44 @@ userSchema.statics.enableUser = async function (email) {
     return user;
 };
 
+
+userSchema.statics.adminStat = async function (email) {
+    const user = await this.findOne({ email });
+    if (!user) {
+        throw Error('Email does not exist');
+    }
+    return user.admin || false;
+}
+
+userSchema.statics.grantAdmin = async function (email) {
+    const user = await this.findOne({ email });
+
+    if (!user) {
+        throw Error('Email does not exist');
+    }
+
+    if (user.admin) {
+        throw Error('Account is already admin.');
+    }
+
+    user.admin = true; // Set the user's admin status to 'true'
+    await user.save(); // Save the updated user document
+}
+
+userSchema.statics.revokeAdmin = async function (email) {
+    const user = await this.findOne({ email });
+
+    if (!user) {
+        throw Error('Email does not exist');
+    }
+
+    if (!user.admin) {
+        throw Error('Account is not admin.');
+    }
+
+    user.admin = false; // Set the user's admin status to 'false'
+    await user.save(); // Save the updated user document
+}
+
+
 module.exports = mongoose.model('User', userSchema);
