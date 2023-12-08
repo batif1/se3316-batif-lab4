@@ -3,11 +3,14 @@ import { useUserManagement } from '../hooks/useAdminControls';
 
 const Admin = () => {
   const [email, setEmail] = useState('');
-  const { enableUser, disableUser, grantAdmin, revokeAdmin, adminStatus, getDMCA, updateDMCA, isLoading, error } = useUserManagement(); // User management hooks
+  const { enableUser, disableUser, grantAdmin, revokeAdmin, adminStatus, getDMCA, updateDMCA, getPrivacy, updatePrivacy, getAUP, updateAUP, isLoading, error } = useUserManagement(); // User management hooks
   const [adminStatusResult, setAdminStatusResult] = useState('');
   const [newDMCA, setNewDMCA] = useState(''); // State to store the new DMCA content
   const [dmcaContent, setDMCAContent] = useState('Click Button Above to See Latest DMCA Content'); // Provide your initial DMCA content here
-
+  const [newPrivacy, setNewPrivacy] = useState(''); // State to store the new Privacy content
+  const [privacyContent, setPrivacyContent] = useState('Click Button Above to See Latest Privacy Content'); // Provide your initial Privacy content here
+  const [newAUP, setNewAUP] = useState(''); // State to store the new AUP content
+  const [aupContent, setAUPContent] = useState('Click Button Above to See Latest AUP Content'); // Provide your initial AUP content here
 
   const handleEnableUser = () => {
     enableUser(email);
@@ -44,7 +47,6 @@ const Admin = () => {
     }
   };
 
-
   const handleUpdateDMCA = async () => {
     try {
       await updateDMCA(newDMCA);
@@ -52,6 +54,38 @@ const Admin = () => {
     } catch (error) {
       // Handle the error, e.g., display an error message
       console.error('Failed to update DMCA content', error);
+    }
+  };
+
+  const handleGetPrivacy = async () => {
+    const content = await getPrivacy();
+    if (content) {
+      // Set the Privacy content to the state variable
+      setPrivacyContent(content);
+    }
+  };
+
+  const handleUpdatePrivacy = async () => {
+    try {
+      await updatePrivacy(newPrivacy);
+    } catch (error) {
+      console.error('Failed to update Privacy content', error);
+    }
+  };
+
+  const handleGetAUP = async () => {
+    const content = await getAUP();
+    if (content) {
+      // Set the AUP content to the state variable
+      setAUPContent(content);
+    }
+  };
+
+  const handleupdateAUP = async () => {
+    try {
+      const content = await updateAUP(newAUP);
+    } catch {
+      console.error('Failed to update AUP content', error);
     }
   };
 
@@ -92,7 +126,40 @@ const Admin = () => {
         </button>
         {dmcaContent && <p>{dmcaContent}</p>}
       </div>
-
+      <div>
+        <button onClick={handleGetPrivacy} disabled={isLoading}>
+          Get Privacy Content
+        </button>
+        {privacyContent && <p>{privacyContent}</p>}
+      </div>
+      <div>
+        <button onClick={handleGetAUP} disabled={isLoading}>
+          Get AUP Content
+        </button>
+        {aupContent && <p>{aupContent}</p>}
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Enter new Privacy content"
+          value={newPrivacy}
+          onChange={(e) => setNewPrivacy(e.target.value)}
+        />
+        <button onClick={handleUpdatePrivacy} disabled={isLoading}>
+          Update Privacy Content
+        </button>
+      </div>
+      <div>
+        <input
+          type="text"
+          placeholder="Enter new AUP content"
+          value={newAUP}
+          onChange={(e) => setNewAUP(e.target.value)}
+        />
+        <button onClick={handleupdateAUP} disabled={isLoading}>
+          Update AUP Content
+        </button>
+      </div>
       <div>
         <input
           type="text"

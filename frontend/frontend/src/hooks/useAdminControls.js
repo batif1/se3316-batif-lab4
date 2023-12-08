@@ -184,5 +184,110 @@ export const useUserManagement = () => {
     }
   };
 
-  return { enableUser, disableUser,adminStatus,revokeAdmin,grantAdmin,getDMCA,updateDMCA, isLoading, error };
+
+  const updatePrivacy = async (newPrivacy) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/privacy/privacy', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ privacy: newPrivacy }),
+      });
+
+      if (!response.ok) {
+        const json = await response.json();
+        setError(json.error);
+      } else {
+        // Privacy content updated successfully
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setError('An error occurred while updating privacy content.');
+    }
+  };
+
+  const getPrivacy = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/privacy/privacy', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        // Handle non-ok response here, e.g., by setting an error state
+        setIsLoading(false);
+        setError('Failed to fetch privacy content');
+        return null; // Return null or handle the error as appropriate
+      }
+
+      const content = await response.json();
+      setIsLoading(false);
+      return content;
+    } catch (error) {
+      // Handle any unexpected errors here
+      console.error(error);
+      setIsLoading(false);
+      setError('An error occurred while fetching privacy content');
+      return null; // Return null or handle the error as appropriate
+    }
+  };
+
+  const updateAUP = async (newAUP) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/privacy/AUP', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ AUP: newAUP }),
+      });
+
+      if (!response.ok) {
+        const json = await response.json();
+        setError(json.error);
+      } else {
+        // AUP content updated successfully
+        setIsLoading(false);
+      }
+    } catch (error) {
+      setError('An error occurred while updating AUP content.');
+    }
+  };
+
+  const getAUP = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/privacy/AUP', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        // Handle non-ok response here, e.g., by setting an error state
+        setIsLoading(false);
+        setError('Failed to fetch AUP content');
+        return null; // Return null or handle the error as appropriate
+      }
+
+      const content = await response.json();
+      setIsLoading(false);
+      return content;
+    } catch (error) {
+      // Handle any unexpected errors here
+      console.error(error);
+      setIsLoading(false);
+      setError('An error occurred while fetching AUP content');
+      return null; // Return null or handle the error as appropriate
+    }
+  }
+
+  return { enableUser, disableUser,adminStatus,revokeAdmin,grantAdmin,getDMCA,updateDMCA, getPrivacy,updatePrivacy,getAUP,updateAUP, isLoading, error };
 };
