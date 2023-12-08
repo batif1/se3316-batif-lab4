@@ -100,6 +100,14 @@ const userRoutes = require('./users.js');
 app.use('/api/user', userRoutes);
 
 
+const privacyRouter = require('./privacy.js'); // Import the privacy router from privacy.js
+
+// Use the privacyRouter
+app.use('/api/privacy', privacyRouter);
+
+// Rest of your server.js code
+
+
 function getHeros() {
     return new Promise((resolve, reject) => {
         fs.readFile('superhero_info.json', 'utf8', (err, data) => {
