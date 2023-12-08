@@ -37,6 +37,7 @@ const Navbar = () => {
               <Link to="/admin">You are an Admin.</Link>
             </div>
           )}
+          <Link to="/Info"> DMCA, Privacy, and AUP</Link>
         </nav>
       </div>
     </header>
